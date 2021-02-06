@@ -18,10 +18,13 @@ def cmd(command):
 
 
 scriptpath = sys.argv.pop(0)
-
 scripts_dir = os.path.abspath(os.path.dirname(scriptpath)) + "/status.d"
-print(scripts_dir)
 
+# Message colours: background, foreground
+colours = {
+    'error': ('440000', 'ff0000'),
+    'info': ('004400', '00ff00'),
+}
 
 while True:
 
@@ -53,10 +56,6 @@ while True:
     # Output messages found
     if len(messages) > 0:
         tooltip = "\n".join(["[{}] {}".format(m['host'], m['text']) for m in messages])
-        colours = {
-            'error': ('440000', 'ff0000'),
-            'info': ('004400', '00ff00'),
-        }
         text = " ".join([
             "<span background=\"#{0}\" foreground=\"#{1}\"> {2}{3} </span>".format(
                 colours[m['type']][0], 
