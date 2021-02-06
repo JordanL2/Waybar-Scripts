@@ -67,7 +67,6 @@ while True:
             'text': text,
             'tooltip': tooltip
             }), flush=True)
-        time.sleep(0.05)
     else:
         print('', flush=True)
     
