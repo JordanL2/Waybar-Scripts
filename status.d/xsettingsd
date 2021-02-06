@@ -1,0 +1,6 @@
+#!/bin/sh
+
+if [[ "`pidof xsettingsd > /dev/null ; echo \$?`" != "0" ]]
+then
+	echo "error|local|xsettingsd is not running"
+fi

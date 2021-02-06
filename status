@@ -1,0 +1,63 @@
+#!/usr/bin/python3
+
+import json
+from os import listdir
+import os.path
+import subprocess
+import sys
+import time
+
+
+def cmd(command):
+    result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout = result.stdout.decode('utf-8').rstrip("\n")
+    stderr = result.stderr.decode('utf-8').rstrip("\n")
+    if result.returncode != 0:
+        raise Exception("Command returned code {}".format(result.returncode))
+    return stdout
+
+
+scriptpath = sys.argv.pop(0)
+
+scripts_dir = os.path.abspath(os.path.dirname(scriptpath)) + "/status.d"
+print(scripts_dir)
+
+
+while True:
+
+    messages = []
+
+    # Search for scripts and execute them
+    files = [f for f in listdir(scripts_dir) if os.path.isfile(os.path.join(scripts_dir, f))]
+    for file in files:
+        results = cmd(os.path.join(scripts_dir, file))
+        for result in results.split("\n"):
+            if result == "":
+                continue
+            first_delim = result.index('|')
+            second_delim = result.index('|', first_delim + 1)
+            message_type = result[0 : first_delim]
+            message_host = result[first_delim + 1 : second_delim]
+            message_text = result[second_delim + 1 :]
+            messages.append({
+                'type': message_type, 
+                'host': message_host, 
+                'text': message_text})
+
+    # Output messages found
+    if len(messages) > 0:
+        tooltip = "\n".join(["[{}] {}".format(m['host'], m['text']) for m in messages])
+        colours = {
+            'error': ('440000', 'ff0000'),
+            'info': ('004400', '00ff00'),
+        }
+        text = " ".join(["<span background=\"#{0}\" foreground=\"#{1}\"> [{2}] {3} </span>".format(colours[m['type']][0], colours[m['type']][1], m['host'], m['text']) for m in messages])
+        print(json.dumps({
+            'text': text,
+            'tooltip': tooltip
+            }), flush=True)
+        time.sleep(0.05)
+    else:
+        print('', flush=True)
+    
+    time.sleep(30)

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+wait-for-network eno1
+
+/usr/bin/waybar
