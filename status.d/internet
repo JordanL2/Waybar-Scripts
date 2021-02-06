@@ -2,5 +2,5 @@
 
 if [[ "`ping 8.8.8.8 -c1 -w5 >/dev/null 2>&1 ; echo \$?`" != "0" ]]
 then
-	echo "error|local|No Internet connection"
+	echo "error||No Internet connection"
 fi
