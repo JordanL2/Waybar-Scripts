@@ -30,19 +30,25 @@ while True:
     # Search for scripts and execute them
     files = [f for f in listdir(scripts_dir) if os.path.isfile(os.path.join(scripts_dir, f))]
     for file in files:
-        results = cmd(os.path.join(scripts_dir, file))
-        for result in results.split("\n"):
-            if result == "":
-                continue
-            first_delim = result.index('|')
-            second_delim = result.index('|', first_delim + 1)
-            message_type = result[0 : first_delim]
-            message_host = result[first_delim + 1 : second_delim]
-            message_text = result[second_delim + 1 :]
+        try:
+            results = cmd(os.path.join(scripts_dir, file))
+            for result in results.split("\n"):
+                if result == "":
+                    continue
+                first_delim = result.index('|')
+                second_delim = result.index('|', first_delim + 1)
+                message_type = result[0 : first_delim]
+                message_host = result[first_delim + 1 : second_delim]
+                message_text = result[second_delim + 1 :]
+                messages.append({
+                    'type': message_type, 
+                    'host': message_host, 
+                    'text': message_text})
+        except Exception:
             messages.append({
-                'type': message_type, 
-                'host': message_host, 
-                'text': message_text})
+                'type': 'error', 
+                'host': 'local', 
+                'text': "Error running status script {}".format(file)})
 
     # Output messages found
     if len(messages) > 0:
