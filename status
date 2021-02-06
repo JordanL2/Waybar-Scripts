@@ -3,6 +3,7 @@
 import json
 from os import listdir
 import os.path
+import re
 import subprocess
 import sys
 import time
@@ -26,6 +27,8 @@ colours = {
     'info': ('004400', '00ff00'),
 }
 
+message_regex = re.compile(r'([^|]*)\|([^|]*)\|(.*)')
+
 while True:
 
     messages = []
@@ -38,15 +41,18 @@ while True:
             for result in results.split("\n"):
                 if result == "":
                     continue
-                first_delim = result.index('|')
-                second_delim = result.index('|', first_delim + 1)
-                message_type = result[0 : first_delim]
-                message_host = result[first_delim + 1 : second_delim]
-                message_text = result[second_delim + 1 :]
-                messages.append({
-                    'type': message_type, 
-                    'host': message_host, 
-                    'text': message_text})
+                match = message_regex.match(result)
+                if not match:
+                    messages.append({
+                        'type': 'error', 
+                        'host': '', 
+                        'text': "Status script {} returned malformed line: '{}'".format(file, result)
+                        })
+                else:
+                    messages.append({
+                        'type': match.group(1), 
+                        'host': match.group(2), 
+                        'text': match.group(3)})
         except Exception:
             messages.append({
                 'type': 'error', 
