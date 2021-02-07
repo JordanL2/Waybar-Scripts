@@ -61,7 +61,12 @@ while True:
 
     # Output messages found
     if len(messages) > 0:
+
+        # Set tooltip text to a vertical list of all messages
         tooltip = "\n".join(["[{}] {}".format(m['label'], m['text']) for m in messages])
+
+        # For toolbar text, compact down multiple messages from the same label
+        # to a single message with just the number of messages
         for label in set([m['label'] for m in messages if m['label'] != '']):
             print(label)
             label_messages = [m for m in messages if m['label'] == label]
@@ -77,6 +82,9 @@ while True:
                     'label': label, 
                     'text': "({})".format(count)
                 })
+
+        # Set toolbar text to a horizontol list of all messages, coloured according
+        # to the message type
         text = " ".join([
             "<span background=\"#{0}\" foreground=\"#{1}\"> {2}{3} </span>".format(
                 colours[m['type']][0], 
@@ -84,10 +92,13 @@ while True:
                 ("[{}] ".format(m['label']) if m['label'] != '' else ''),
                 m['text']
             ) for m in messages])
+
+        # Output data to Waybar
         print(json.dumps({
             'text': text,
             'tooltip': tooltip
             }), flush=True)
+
     else:
         print('', flush=True)
     
