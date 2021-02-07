@@ -45,28 +45,28 @@ while True:
                 if not match:
                     messages.append({
                         'type': 'error', 
-                        'host': '', 
+                        'label': '', 
                         'text': "Status script {} returned malformed line: '{}'".format(file, result)
                         })
                 else:
                     messages.append({
                         'type': match.group(1), 
-                        'host': match.group(2), 
+                        'label': match.group(2), 
                         'text': match.group(3)})
         except Exception:
             messages.append({
                 'type': 'error', 
-                'host': '', 
+                'label': '', 
                 'text': "Error running status script {}".format(file)})
 
     # Output messages found
     if len(messages) > 0:
-        tooltip = "\n".join(["[{}] {}".format(m['host'], m['text']) for m in messages])
+        tooltip = "\n".join(["[{}] {}".format(m['label'], m['text']) for m in messages])
         text = " ".join([
             "<span background=\"#{0}\" foreground=\"#{1}\"> {2}{3} </span>".format(
                 colours[m['type']][0], 
                 colours[m['type']][1], 
-                ("[{}] ".format(m['host']) if m['host'] != '' else ''),
+                ("[{}] ".format(m['label']) if m['label'] != '' else ''),
                 m['text']
             ) for m in messages])
         print(json.dumps({
