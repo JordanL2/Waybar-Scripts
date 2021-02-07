@@ -62,6 +62,21 @@ while True:
     # Output messages found
     if len(messages) > 0:
         tooltip = "\n".join(["[{}] {}".format(m['label'], m['text']) for m in messages])
+        for label in set([m['label'] for m in messages if m['label'] != '']):
+            print(label)
+            label_messages = [m for m in messages if m['label'] == label]
+            print(len(label_messages))
+            label_type = 'info'
+            if 'error' in [m['type'] for m in label_messages]:
+                label_type = 'error'
+            if len(label_messages) > 1:
+                count = len(label_messages)
+                messages = [m for m in messages if m['label'] != label]
+                messages.append({
+                    'type': label_type, 
+                    'label': label, 
+                    'text': "({})".format(count)
+                })
         text = " ".join([
             "<span background=\"#{0}\" foreground=\"#{1}\"> {2}{3} </span>".format(
                 colours[m['type']][0], 
