@@ -34,11 +34,11 @@ The output of messages must be in the format:
 
 Where:
 
-`type` is either `info` or `error`
+`type` is either `info` or `error`.
 
-`label` is a user-defined category or source - if there are multiple messages from the same source, just the number of messages for that source will be shown on the taskbar, all messages will be shown in the tooltip text
+`label` is a user-defined category or source. If there are multiple messages from the same source, just the number of messages for that source will be shown on the taskbar. All messages will be shown in the tooltip text.
 
-`message` is the text to display, this may have `|` characters in it
+`message` is the text to display, this may have `|` characters in it, but must all be on the same line.
 
 
 ## waybar_wait_for_network
