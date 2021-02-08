@@ -12,7 +12,7 @@ INTERVAL: Number of seconds between each measurement. Default is 1. Non-integers
 
  SAMPLES: Number of past measurements to average. Default is 1.
 
- SHADING: Whether or not ['on' or 'off'] to shade each bar according to its value. If this is turned on, you'll want to change the background and foreground colours in the `states` map inside the script.
+ SHADING: Whether or not ['on' or 'off'] to shade each bar according to its value. If this is turned on, you'll want to change the background and foreground colours in the `cpu_graphical.yml` config file.
 
 
 ## mem_graphical

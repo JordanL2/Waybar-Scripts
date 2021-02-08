@@ -2,29 +2,33 @@
 
 import json
 import math
+import os.path
 import re
 import statistics
 import subprocess
 import sys
 import time
+import yaml
 
 
 # ARGUMENTS
 
+scriptpath = sys.argv.pop(0)
+
 # 1. Interval - default 1
 t = 1
-if len(sys.argv) > 1:
-    t = float(sys.argv[1])
+if len(sys.argv) > 0:
+    t = float(sys.argv.pop(0))
 
 # 2. Number of timings to measure and average over - default 1
 max_times = 1
-if len(sys.argv) > 2:
-    max_times = int(sys.argv[2])
+if len(sys.argv) > 0:
+    max_times = int(sys.argv.pop(0))
 
 # 3. Shading mode - default off, 'on' to enable
 colour_bars = 'off'
-if len(sys.argv) > 3:
-    colour_bars = sys.argv[3]
+if len(sys.argv) > 0:
+    colour_bars = sys.argv.pop(0)
 
 
 # Tooltips will update every this many seconds
@@ -35,23 +39,20 @@ tooltip_update_time = 1
 
 chars = ' ▁▂▃▄▅▆▇█'
 
-states = {
-    0: {
-        'status': '',
-        'background': '#31363b',
-        'foreground': '#ffffff',
-    },
-    70: {
-        'status': 'warning',
-        'background': '#442b11',
-        'foreground': '#ffa500',
-    },
-    90: {
-        'status': 'critical',
-        'background': '#441111',
-        'foreground': '#ff0000',
-    },
-}
+states = {}
+config_file = os.path.abspath(os.path.dirname(scriptpath)) + "/cpu_graphical.yml"
+if os.path.exists(config_file):
+    with open(config_file, 'r') as fh:
+        config = yaml.load(fh, Loader=yaml.CLoader)
+        for state in config:
+            states[config[state]['threshold']] = {
+                'status': (state if state != 'normal' else ''),
+                'background': config[state]['background'],
+                'foreground': config[state]['foreground'],
+            }
+else:
+    raise Exception("No such config file: {}".format(config_file))
+
 state_keys = sorted(list(states.keys()), reverse=True)
 
 

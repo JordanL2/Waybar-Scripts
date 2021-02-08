@@ -1,0 +1,12 @@
+normal:
+  threshold: 0
+  background: '#31363b'
+  foreground: '#ffffff'
+warning:
+  threshold: 70
+  background: '#442b11'
+  foreground: '#ffa500'
+critical:
+  threshold: 90
+  background: '#441111'
+  foreground: '#ff0000'
