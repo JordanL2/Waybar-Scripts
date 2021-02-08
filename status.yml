@@ -1,0 +1,7 @@
+statuses:
+  - info:
+      background: '#004400'
+      foreground: '#00ff00'
+  - error:
+      background: '#440000'
+      foreground: '#ff0000'

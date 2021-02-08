@@ -7,6 +7,7 @@ import re
 import subprocess
 import sys
 import time
+import yaml
 
 
 def cmd(command):
@@ -21,11 +22,17 @@ def cmd(command):
 scriptpath = sys.argv.pop(0)
 scripts_dir = os.path.abspath(os.path.dirname(scriptpath)) + "/status.d"
 
-# Message colours: background, foreground
-colours = {
-    'error': ('440000', 'ff0000'),
-    'info': ('004400', '00ff00'),
-}
+# Config
+colours = {}
+statuses = []
+config_file = os.path.abspath(os.path.dirname(scriptpath)) + "/status.yml"
+if os.path.exists(config_file):
+    with open(config_file, 'r') as fh:
+        config = yaml.load(fh, Loader=yaml.CLoader)
+        for status in config['statuses']:
+            status_key = list(status.keys())[0]
+            statuses.append(status_key)
+            colours[status_key] = (status[status_key]['background'], status[status_key]['foreground'])
 
 message_regex = re.compile(r'([^|]*)\|([^|]*)\|(.*)')
 
@@ -68,12 +75,8 @@ while True:
         # For toolbar text, compact down multiple messages from the same label
         # to a single message with just the number of messages
         for label in set([m['label'] for m in messages if m['label'] != '']):
-            print(label)
             label_messages = [m for m in messages if m['label'] == label]
-            print(len(label_messages))
-            label_type = 'info'
-            if 'error' in [m['type'] for m in label_messages]:
-                label_type = 'error'
+            label_type = statuses[max([statuses.index(m['type']) for m in label_messages])]
             if len(label_messages) > 1:
                 count = len(label_messages)
                 messages = [m for m in messages if m['label'] != label]
@@ -86,7 +89,7 @@ while True:
         # Set toolbar text to a horizontol list of all messages, coloured according
         # to the message type
         text = " ".join([
-            "<span background=\"#{0}\" foreground=\"#{1}\"> {2}{3} </span>".format(
+            "<span background=\"{0}\" foreground=\"{1}\"> {2}{3} </span>".format(
                 colours[m['type']][0], 
                 colours[m['type']][1], 
                 ("[{}] ".format(m['label']) if m['label'] != '' else ''),

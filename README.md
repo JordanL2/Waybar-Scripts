@@ -17,9 +17,9 @@ Shows CPU usage per-core as a text bar-chart.
 
 ## mem_graphical
 
-Shows a bar indicating total memory usage, and another that excludes cache and buffers.
+Shows a bar indicating total memory usage (on the left), and another that excludes cache and buffers (on the right).
 
-This also uses the `cpu_graphical.yml` config file to get the colours and states.
+This also uses the `cpu_graphical.yml` config file to get the colours and states, as well as the brightness level of the bar that includes cache compared to the bar that excludes it.
 
 
 ## status
@@ -41,6 +41,10 @@ Where:
 `label` is a user-defined category or source. If there are multiple messages from the same source, just the number of messages for that source will be shown on the taskbar. All messages will be shown in the tooltip text.
 
 `message` is the text to display, this may have `|` characters in it, but must all be on the same line.
+
+### Configuration
+
+`status.yml` contains a list of statuses, and the background and foreground colours for them. Additional statuses may be added to this file. The order of the statuses determines the order of precedence.
 
 
 ## waybar_wait_for_network
