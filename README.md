@@ -1,5 +1,7 @@
 # Waybar-Scripts
 
+A collection of scripts to be uses with [Waybar](https://github.com/Alexays/Waybar).
+
 ## cpu_graphical
 
 Shows CPU usage per-core as a text bar-chart.
