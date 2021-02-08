@@ -24,15 +24,15 @@ scripts_dir = os.path.abspath(os.path.dirname(scriptpath)) + "/status.d"
 
 # Config
 colours = {}
-statuses = []
+levels = []
 config_file = os.path.abspath(os.path.dirname(scriptpath)) + "/status.yml"
 if os.path.exists(config_file):
     with open(config_file, 'r') as fh:
         config = yaml.load(fh, Loader=yaml.CLoader)
-        for status in config['statuses']:
-            status_key = list(status.keys())[0]
-            statuses.append(status_key)
-            colours[status_key] = (status[status_key]['background'], status[status_key]['foreground'])
+        for level in config['levels']:
+            level_key = list(level.keys())[0]
+            levels.append(level_key)
+            colours[level_key] = (level[level_key]['background'], level[level_key]['foreground'])
 
 message_regex = re.compile(r'([^|]*)\|([^|]*)\|(.*)')
 
@@ -51,18 +51,18 @@ while True:
                 match = message_regex.match(result)
                 if not match:
                     messages.append({
-                        'type': 'error', 
+                        'level': 'error', 
                         'label': '', 
                         'text': "Status script {} returned malformed line: '{}'".format(file, result)
                         })
                 else:
                     messages.append({
-                        'type': match.group(1), 
+                        'level': match.group(1), 
                         'label': match.group(2), 
                         'text': match.group(3)})
         except Exception:
             messages.append({
-                'type': 'error', 
+                'level': 'error', 
                 'label': '', 
                 'text': "Error running status script {}".format(file)})
 
@@ -76,22 +76,22 @@ while True:
         # to a single message with just the number of messages
         for label in set([m['label'] for m in messages if m['label'] != '']):
             label_messages = [m for m in messages if m['label'] == label]
-            label_type = statuses[max([statuses.index(m['type']) for m in label_messages])]
+            label_level = levels[max([levels.index(m['level']) for m in label_messages])]
             if len(label_messages) > 1:
                 count = len(label_messages)
                 messages = [m for m in messages if m['label'] != label]
                 messages.append({
-                    'type': label_type, 
+                    'level': label_level, 
                     'label': label, 
                     'text': "({})".format(count)
                 })
 
         # Set toolbar text to a horizontol list of all messages, coloured according
-        # to the message type
+        # to the message level
         text = " ".join([
             "<span background=\"{0}\" foreground=\"{1}\"> {2}{3} </span>".format(
-                colours[m['type']][0], 
-                colours[m['type']][1], 
+                colours[m['level']][0], 
+                colours[m['level']][1], 
                 ("[{}] ".format(m['label']) if m['label'] != '' else ''),
                 m['text']
             ) for m in messages])

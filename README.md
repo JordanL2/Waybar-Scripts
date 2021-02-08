@@ -34,11 +34,11 @@ In the same directory as the `status` script, there must be a directory named `s
 
 The output of messages must be in the format:
 
-`type|label|message`
+`level|label|message`
 
 Where:
 
-`type` is either `info` or `error`.
+`level` is either `info` or `error`.
 
 `label` is a user-defined category or source. If there are multiple messages from the same source, just the number of messages for that source will be shown on the taskbar. All messages will be shown in the tooltip text.
 
@@ -46,7 +46,7 @@ Where:
 
 ### Configuration
 
-`status.yml` contains a list of statuses, and the background and foreground colours for them. Additional statuses may be added to this file. The order of the statuses determines the order of precedence.
+`status.yml` contains a list of message levels, and the background and foreground colours for them. Additional levels may be added to this file. The order of the levels determines the order of precedence.
 
 
 ## waybar_wait_for_network

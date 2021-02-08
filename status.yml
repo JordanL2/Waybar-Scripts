@@ -1,4 +1,4 @@
-statuses:
+levels:
   - info:
       background: '#004400'
       foreground: '#00ff00'
