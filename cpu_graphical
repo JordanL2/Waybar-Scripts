@@ -46,7 +46,7 @@ if os.path.exists(config_file):
         config = yaml.load(fh, Loader=yaml.CLoader)
         for state in config['states']:
             states[config['states'][state]['threshold']] = {
-                'status': (state if state != 'normal' else ''),
+                'status': state,
                 'background': config['states'][state]['background'],
                 'foreground': config['states'][state]['foreground'],
             }

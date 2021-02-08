@@ -1,5 +1,5 @@
 states:
-  normal:
+  '':
     threshold: 0
     background: '#31363b'
     foreground: '#ffffff'
