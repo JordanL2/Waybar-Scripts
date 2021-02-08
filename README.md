@@ -52,3 +52,9 @@ Where:
 ## waybar_wait_for_network
 
 A script that launches Waybar only once the network is definitely available.
+
+### Usage
+
+Run with the name of the ethernet adapter as the first and only argument, eg:
+
+`waybar_wait_for_network eno1`
