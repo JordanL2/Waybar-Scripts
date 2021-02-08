@@ -1,6 +1,6 @@
 # Waybar-Scripts
 
-A collection of scripts to be uses with [Waybar](https://github.com/Alexays/Waybar).
+A collection of scripts to be used with [Waybar](https://github.com/Alexays/Waybar).
 
 ## cpu_graphical
 
