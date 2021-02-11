@@ -6,6 +6,7 @@ import os.path
 import re
 import subprocess
 import sys
+import xml.sax.saxutils 
 import time
 import yaml
 
@@ -92,14 +93,14 @@ while True:
             "<span background=\"{0}\" foreground=\"{1}\"> {2}{3} </span>".format(
                 colours[m['level']][0], 
                 colours[m['level']][1], 
-                ("[{}] ".format(m['label']) if m['label'] != '' else ''),
-                m['text']
+                ("[{}] ".format(xml.sax.saxutils.escape(m['label'])) if m['label'] != '' else ''),
+                xml.sax.saxutils.escape(m['text'])
             ) for m in messages])
 
         # Output data to Waybar
         print(json.dumps({
             'text': text,
-            'tooltip': tooltip
+            'tooltip': xml.sax.saxutils.escape(tooltip)
             }), flush=True)
 
     else:
