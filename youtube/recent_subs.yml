@@ -1,0 +1,3 @@
+channel_id: # PUT YOUR YOUTUBE CHANNEL ID HERE
+show_last_minutes: 10
+poll_every_minutes: 2

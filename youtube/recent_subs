@@ -1,0 +1,179 @@
+#!/usr/bin/python3
+
+# sudo pip install --upgrade google-api-python-client
+# sudo pip install --upgrade google-auth-oauthlib google-auth-httplib2
+
+from datetime import *
+import os
+import os.path
+import pickle
+import sys
+import yaml
+
+import google_auth_oauthlib.flow
+import googleapiclient.discovery
+import googleapiclient.errors
+
+
+scriptpath = sys.argv.pop(0)
+script_dir = os.path.abspath(os.path.dirname(scriptpath))
+
+scopes = ["https://www.googleapis.com/auth/youtube.readonly"]
+api_service_name = "youtube"
+api_version = "v3"
+
+
+def main():
+    youtube = YoutubeMonitor(script_dir)
+    youtube.poll()
+    videos_found = []
+    for channelId in youtube.videos:
+        videos = youtube.videos[channelId]['videos']
+        if len(videos) > 0:
+            for video_id, video in videos.items():
+                videos_found.append((youtube.videos[channelId]['title'], video['title'], video['published']))
+    for video in sorted(videos_found, key=lambda v: v[2], reverse=True):
+        print("info|youtube|{} - {}".format(video[0], video[1]))
+    
+
+class YoutubeMonitor():
+
+    date_format = '%Y-%m-%dT%H:%M:%SZ'
+
+    def __init__(self, dir_name):
+        self.dir = dir_name
+        self.config_file = self.dir + "/recent_subs.yml"
+        self.client_secret_file = self.dir + "/client_secret.json"
+        self.credentials_cache_file = self.dir + "/CREDENTIALS_CACHE"
+        self.video_cache_file = self.dir + "/VIDEO_CACHE"
+
+        self.service = self.initialise_service()
+        self.get_video_cache()
+        if os.path.exists(self.config_file):
+            with open(self.config_file, 'r') as fh:
+                config = yaml.load(fh, Loader=yaml.CLoader)
+                self.my_account = config['channel_id']
+                self.show_last_minutes = config['show_last_minutes']
+                self.poll_every_minutes = config['poll_every_minutes']
+        else:
+            raise Exception("No such file: {}".format(self.config_file))
+
+    def get_video_cache(self):
+        if os.path.exists(self.video_cache_file):
+            with open(self.video_cache_file, 'rb') as f:
+                state = pickle.load(f)
+                self.videos = state['videos']
+                self.last_sync = state['last_sync']
+        else:
+            self.videos = {}
+            self.last_sync = None
+
+    def write_video_cache(self):
+        with open(self.video_cache_file, 'wb') as f:
+            pickle.dump({
+                'videos': self.videos,
+                'last_sync': self.last_sync
+                }, f)
+
+    def remove_old_videos(self, publishedAfter):
+        for channelId, channel in self.videos.items():
+            channel['videos'] = dict([(v_id, v) for v_id, v in channel['videos'].copy().items() if v['published'] >= publishedAfter])
+
+    def poll(self):
+        publishedAfter = self.calculate_start_time()
+
+        if self.need_to_sync():
+            channels = self.get_subscribed_channels()
+
+            for channel in channels:
+                channelId = channel['snippet']['resourceId']['channelId']
+                if channelId not in self.videos:
+                    self.videos[channelId] = {
+                        'title': channel['snippet']['title'],
+                        'count': 0,
+                        'videos': {},
+                    }
+                count = channel['contentDetails']['totalItemCount']
+                if count > self.videos[channelId]['count']:
+                    channel_videos = self.get_videos(channelId, publishedAfter)
+                    for video in channel_videos:
+                        if video['id'] not in self.videos[channelId]['videos']:
+                            self.videos[channelId]['videos'][video['id']] = {
+                                'title': video['snippet']['title'],
+                                'published': video['snippet']['publishedAt']
+                            }
+                self.videos[channelId]['count'] = count
+            self.last_sync = datetime.now().strftime(self.date_format)
+
+        self.remove_old_videos(publishedAfter)
+
+
+        self.write_video_cache()
+
+    def calculate_start_time(self):
+        now = datetime.now()
+        delta = timedelta(minutes = self.show_last_minutes)
+        dt = now - delta
+        return dt.strftime(self.date_format)
+
+    def need_to_sync(self):
+        if self.last_sync is None:
+            return True
+        now = datetime.now()
+        last_sync_dt = datetime.strptime(self.last_sync, self.date_format)
+        min_delta = timedelta(minutes = self.poll_every_minutes)
+        return (now - last_sync_dt) > min_delta
+
+    def initialise_service(self):
+        # Disable OAuthlib's HTTPS verification when running locally.
+        # *DO NOT* leave this option enabled in production.
+        os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+        # Get credentials and create an API client
+        flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
+            self.client_secret_file, scopes)
+        return self.get_authenticated_service()
+
+    def get_authenticated_service(self):
+        if os.path.exists(self.credentials_cache_file):
+            with open(self.credentials_cache_file, 'rb') as f:
+                credentials = pickle.load(f)
+        else:
+            flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(self.client_secret_file, scopes)
+            credentials = flow.run_console()
+            with open(self.credentials_cache_file, 'wb') as f:
+                pickle.dump(credentials, f)
+        return googleapiclient.discovery.build(
+            api_service_name, api_version, credentials=credentials)
+
+    def get_all_results(self, api_call, args):
+        items = []
+
+        next_page_token = None
+        while True:
+            if next_page_token is not None:
+                args['pageToken'] = next_page_token
+            request = api_call(**args)
+            response = request.execute()
+            items.extend(response['items'])
+            if 'nextPageToken' not in response:
+                break
+            next_page_token = response['nextPageToken']
+        return items
+
+    def get_subscribed_channels(self):
+        return self.get_all_results(self.service.subscriptions().list, {
+            'part': "snippet,contentDetails",
+            'maxResults': 50,
+            'channelId': self.my_account
+        })
+
+    def get_videos(self, channelId, publishedAfter):
+        return [v for v in self.get_all_results(self.service.activities().list, {
+            'part': "snippet,contentDetails",
+            'channelId': channelId,
+            'maxResults': 50,
+            'publishedAfter': publishedAfter,
+        }) if v['snippet']['type'] == 'upload']
+
+if __name__ == "__main__":
+    main()
