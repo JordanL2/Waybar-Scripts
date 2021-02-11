@@ -48,6 +48,20 @@ Where:
 
 `status.yml` contains a list of message levels, and the background and foreground colours for them. Additional levels may be added to this file. The order of the levels determines the order of precedence.
 
+### Status Scripts
+
+#### status.d/internet
+
+Simple script to check internet connectivity. Pings Google's DNS servers.
+
+#### status.d/xsettingsd
+
+Check that the xsettingsd service is running.
+
+#### youtube/recent_subs
+
+Checks if there are any new videos from any of the channels you're subscribed to.
+
 
 ## waybar_wait_for_network
 
