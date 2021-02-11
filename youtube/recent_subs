@@ -4,7 +4,6 @@
 # sudo pip install --upgrade google-auth-oauthlib google-auth-httplib2
 
 from datetime import *
-import os
 import os.path
 import pickle
 import sys
@@ -125,10 +124,6 @@ class YoutubeMonitor():
         return (now - last_sync_dt) > min_delta
 
     def initialise_service(self):
-        # Disable OAuthlib's HTTPS verification when running locally.
-        # *DO NOT* leave this option enabled in production.
-        os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
-        # Get credentials and create an API client
         flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
             self.client_secret_file, scopes)
         return self.get_authenticated_service()

@@ -1,7 +1,7 @@
 levels:
   - info:
-      background: '#004400'
+      background: '#004000'
       foreground: '#00ff00'
   - error:
-      background: '#440000'
+      background: '#400000'
       foreground: '#ff0000'
