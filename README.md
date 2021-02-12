@@ -62,6 +62,14 @@ Check that the xsettingsd service is running.
 
 Checks if there are any new videos from any of the channels you're subscribed to.
 
+##### Setup
+
+* Create a Google API OAuth 2.0 Client ID, download the client secret file to the youtube directory as `client_secret.json`.
+
+* Edit `recent_subs.yml` and add your channel ID (Youtube > Your channel > copy ID from the URL).
+
+* Run `recent_subs` manually - it will give you a URL to go to, to allow the app to access your account. Copy and paste the resulting code into the terminal.
+
 
 ## waybar_wait_for_network
 
