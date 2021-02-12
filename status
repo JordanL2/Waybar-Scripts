@@ -95,7 +95,7 @@ while True:
                 colours[m['level']][1], 
                 ("[{}] ".format(xml.sax.saxutils.escape(m['label'])) if m['label'] != '' else ''),
                 xml.sax.saxutils.escape(m['text'])
-            ) for m in messages])
+            ) for m in sorted(messages, key=lambda x: levels.index(x['level']), reverse=True)])
 
         # Output data to Waybar
         print(json.dumps({
