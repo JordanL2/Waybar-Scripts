@@ -46,7 +46,7 @@ class YoutubeMonitor():
         self.credentials_cache_file = self.dir + "/CREDENTIALS_CACHE"
         self.video_cache_file = self.dir + "/VIDEO_CACHE"
 
-        self.service = self.initialise_service()
+        self.service = self.get_authenticated_service()
         self.get_video_cache()
         if os.path.exists(self.config_file):
             with open(self.config_file, 'r') as fh:
@@ -122,11 +122,6 @@ class YoutubeMonitor():
         last_sync_dt = datetime.strptime(self.last_sync, self.date_format)
         min_delta = timedelta(minutes = self.poll_every_minutes)
         return (now - last_sync_dt) > min_delta
-
-    def initialise_service(self):
-        flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
-            self.client_secret_file, scopes)
-        return self.get_authenticated_service()
 
     def get_authenticated_service(self):
         if os.path.exists(self.credentials_cache_file):
