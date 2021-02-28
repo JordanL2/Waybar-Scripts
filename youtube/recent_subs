@@ -132,6 +132,7 @@ class YoutubeMonitor():
                 credentials = pickle.load(f)
 
             if credentials.expired:
+                print("Refreshing token...", file=sys.stderr)
                 request = google.auth.transport.requests.Request()
                 credentials.refresh(request)
 
