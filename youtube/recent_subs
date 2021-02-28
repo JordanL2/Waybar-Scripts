@@ -12,6 +12,7 @@ import yaml
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
+import google.auth.transport.requests
 
 
 scriptpath = sys.argv.pop(0)
@@ -124,14 +125,21 @@ class YoutubeMonitor():
         return (now - last_sync_dt) > min_delta
 
     def get_authenticated_service(self):
+        flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(self.client_secret_file, scopes)
+
         if os.path.exists(self.credentials_cache_file):
             with open(self.credentials_cache_file, 'rb') as f:
                 credentials = pickle.load(f)
+
+            if credentials.expired:
+                request = google.auth.transport.requests.Request()
+                credentials.refresh(request)
+
         else:
-            flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(self.client_secret_file, scopes)
             credentials = flow.run_console()
             with open(self.credentials_cache_file, 'wb') as f:
                 pickle.dump(credentials, f)
+
         return googleapiclient.discovery.build(
             api_service_name, api_version, credentials=credentials)
 
