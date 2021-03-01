@@ -135,6 +135,8 @@ class YoutubeMonitor():
                 print("Refreshing token...", file=sys.stderr)
                 request = google.auth.transport.requests.Request()
                 credentials.refresh(request)
+                with open(self.credentials_cache_file, 'wb') as f:
+                    pickle.dump(credentials, f)
 
         else:
             credentials = flow.run_console()
