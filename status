@@ -42,7 +42,7 @@ while True:
     messages = []
 
     # Search for scripts and execute them
-    files = [f for f in listdir(scripts_dir) if os.path.isfile(os.path.join(scripts_dir, f))]
+    files = [f for f in sorted(listdir(scripts_dir)) if os.path.isfile(os.path.join(scripts_dir, f))]
     for file in files:
         try:
             results = cmd(os.path.join(scripts_dir, file))
